@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English ↔ Hindi Translator</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>🌐 English → Hindi Translator</h1>
+      <p>Seq2Seq + Bahdanau Attention Neural Machine Translation</p>
+    </header>
+    <div class="translator-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="lang-label">English</span>
+          <button class="clear-btn" onclick="clearAll()">✕ Clear</button>
+        </div>
+        <textarea id="src-text" placeholder="Type English text here..." maxlength="300" oninput="handleInput()"></textarea>
+        <div class="panel-footer"><span id="char-count">0 / 300</span></div>
+      </div>
+      <div class="arrow-col"><div class="arrow">→</div></div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="lang-label">Hindi</span>
+          <button class="copy-btn" onclick="copyOutput()">⎘ Copy</button>
+        </div>
+        <div id="tgt-text" class="output-box"><span class="hint">Translation appears here...</span></div>
+        <div class="panel-footer"><span id="status"></span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let timer;
+    function handleInput() {
+      const text = document.getElementById('src-text').value;
+      document.getElementById('char-count').textContent = `${text.length} / 300`;
+      clearTimeout(timer);
+      if (!text.trim()) {
+        document.getElementById('tgt-text').innerHTML = '<span class="hint">Translation appears here...</span>';
+        setStatus(''); return;
+      }
+      setStatus('Translating...');
+      timer = setTimeout(() => doTranslate(text), 700);
+    }
+    async function doTranslate(text) {
+      try {
+        const res  = await fetch('/translate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
+        const data = await res.json();
+        document.getElementById('tgt-text').textContent = data.translation || '—';
+        setStatus('');
+      } catch { setStatus('Error — is Flask running?'); }
+    }
+    function clearAll() {
+      document.getElementById('src-text').value = '';
+      document.getElementById('tgt-text').innerHTML = '<span class="hint">Translation appears here...</span>';
+      document.getElementById('char-count').textContent = '0 / 300';
+      setStatus('');
+    }
+    function copyOutput() {
+      const t = document.getElementById('tgt-text').textContent;
+      navigator.clipboard.writeText(t).then(() => { setStatus('Copied!'); setTimeout(()=>setStatus(''),1500); });
+    }
+    function setStatus(msg) { document.getElementById('status').textContent = msg; }
+  </script>
+</body>
+</html>
