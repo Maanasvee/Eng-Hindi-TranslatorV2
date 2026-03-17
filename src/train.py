@@ -86,4 +86,55 @@ if __name__ == "__main__":
                         "hidden_dim":HIDDEN_DIM,"n_layers":N_LAYERS,
                         "dropout":DROPOUT}, "../checkpoints/best_model.pt")
             print(f"  ✓ Checkpoint saved (val: {best_val:.4f})")
-    print("Training complete!")
+    print("Training complete!")    
+
+# ══════════════════════════════════════════════════════════════════
+# MODEL ARCHITECTURE SUMMARY
+# ══════════════════════════════════════════════════════════════════
+#
+# HYPERPARAMETERS USED:
+#   Embedding dim     : 128
+#   Hidden dim        : 256
+#   GRU layers        : 1
+#   Dropout           : 0.3
+#   Batch size        : 64
+#   Epochs            : 10
+#   Learning rate     : 0.001 (Adam)
+#   Grad clip         : 1.0
+#   Teacher forcing   : 50%
+#
+# DATASET:
+#   Total pairs       : 122,885
+#   Subset used       : 30,000
+#   Train / Val       : 27,000 / 3,000
+#   EN vocab          : ~40,738 words
+#   HI vocab          : ~39,794 words
+#   Stopwords removed : NO (as required)
+#
+# ENCODER:
+#   Embedding → Bidirectional GRU → Linear
+#   Reads sentence forward + backward
+#   Output: encoder_outputs [B, src_len, 512], hidden [1, B, 256]
+#
+# ATTENTION (Bahdanau):
+#   score = v · tanh(W1·hidden + W2·encoder_output)
+#   weights = softmax(scores)
+#   context = weighted sum of encoder outputs
+#
+# DECODER:
+#   Embedding + Context → GRU → Linear → Softmax over HI vocab
+#
+# TRAINING RESULTS:
+#   Epoch 01 | Train: 6.8891 | Val: 6.6614
+#   Epoch 02 | Train: 5.9784 | Val: 6.4584
+#   Epoch 03 | Train: 5.3067 | Val: 6.3935  ← best checkpoint
+#   Epoch 04 | Train: 4.6909 | Val: 6.4412
+#   Epoch 05 | Train: 4.2405 | Val: 6.5079
+#   Epoch 06 | Train: 3.9528 | Val: 6.5861
+#   Epoch 07 | Train: 3.6302 | Val: 6.5897
+#   Epoch 08 | Train: 3.4728 | Val: 6.6304
+#   Epoch 09 | Train: 3.3363 | Val: 6.6797
+#   Epoch 10 | Train: 3.2016 | Val: 6.6922
+#   Best Val Loss: 6.3935 at Epoch 3
+#   Device: CUDA (Kaggle P100 GPU)
+# ══════════════════════════════════════════════════════════════════    
