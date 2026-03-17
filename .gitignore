@@ -1,0 +1,7 @@
+Set-Content .gitignore "checkpoints/
+*.pt
+data/*.pkl
+data/*.csv
+__pycache__/
+*.pyc
+.env"
